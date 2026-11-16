@@ -2,70 +2,88 @@ import streamlit as st
 import pandas as pd
 import base64
 
-st.set_page_config(page_title="Farm Yield Analyzer", page_icon="🌾", layout="wide")
-st.title("🌾 Agricultural Yield Analyzer")
-st.write("Upload your farm data below to instantly generate charts and insights.")
+st.set_page_config(page_title="Universal Data Analyzer", page_icon="📊", layout="wide")
+st.title("📊 Erick's Universal Data Analyzer")
+st.write("Upload any CSV file (Business, Agriculture, Research) to instantly generate insights.")
 
-# --- NEW: Create a Downloadable Template ---
+# --- TEMPLATE DOWNLOAD ---
 def get_csv_template():
-    template_data = "Farmer_Name,Crop,Acres_Planted,Yield_Kg\nJohn Doe,Maize,10,5000\nJane Doe,Beans,5,2000"
+    template_data = "Category,Item,Quantity,Sales_Amount\nRegion A,Product X,10,5000\nRegion B,Product Y,5,2000"
     b64 = base64.b64encode(template_data.encode()).decode()
-    href = f'<a href="data:file/csv;base64,{b64}" download="farm_template.csv">📥 Download Blank Data Template</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="universal_template.csv">📥 Download Blank Data Template</a>'
     return href
 
 st.markdown(get_csv_template(), unsafe_allow_html=True)
 st.divider()
 
-# --- NEW: The File Uploader ---
-uploaded_file = st.file_uploader("Upload your farm data (CSV format)", type=["csv"])
+# --- FILE UPLOADER ---
+uploaded_file = st.file_uploader("Upload your data file (CSV format)", type=["csv"])
 
 if uploaded_file is not None:
     try:
         df = pd.read_csv(uploaded_file)
-        st.success("✅ File uploaded successfully! Here is your analysis:")
+        st.success("✅ File uploaded successfully!")
     except Exception as e:
         st.error(f"Error reading file: {e}")
         st.stop()
 else:
-    st.info("👆 Please upload a CSV file. (Showing demo data below until you upload).")
+    st.info("👆 Please upload a CSV file. (Showing sample Business data below until you upload).")
     df = pd.DataFrame({
-        'Farmer_Name': ['Otieno', 'Wanjiku', 'Otieno', 'Kamau', 'Wanjiku', 'Kamau'],
-        'Crop': ['Maize', 'Beans', 'Beans', 'Maize', 'Maize', 'Beans'],
-        'Acres_Planted': [5, 3, 2, 10, 4, 5],
-        'Yield_Kg': [2500, 1200, 800, 6000, 2100, 1900]
+        'Region': ['Nairobi', 'Mombasa', 'Kisumu', 'Nairobi', 'Mombasa'],
+        'Product': ['Laptop', 'Phone', 'Tablet', 'Phone', 'Laptop'],
+        'Units_Sold': [5, 10, 3, 8, 4],
+        'Revenue': [250000, 150000, 60000, 120000, 200000]
     })
 
-# --- THE ANALYTICS ENGINE ---
-try:
-    st.sidebar.header("Filter Data")
-    selected_crop = st.sidebar.selectbox("Select a Crop:", ["All"] + list(df['Crop'].dropna().unique()))
-    
-    if selected_crop != "All":
-        filtered_df = df[df['Crop'] == selected_crop]
-    else:
-        filtered_df = df
+# --- THE UNIVERSAL ANALYTICS ENGINE ---
+st.divider()
 
+# 1. Automatically detect Number columns and Text columns
+numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+categorical_cols = df.select_dtypes(include=['object', 'string']).columns.tolist()
+
+if len(numeric_cols) == 0:
+    st.error("⚠️ Your file has no number columns to analyze. Please ensure your data has numbers (like Sales, Age, Quantity).")
+else:
+    st.subheader("⚙️ Customize Your Analysis")
+    
+    colA, colB = st.columns(2)
+    
+    with colA:
+        # User picks the number they want to analyze (e.g., Revenue, Yield)
+        target_metric = st.selectbox("What number do you want to analyze?", numeric_cols)
+        
+    with colB:
+        # User picks how to group it (e.g., By Region, By Crop, By Name)
+        if len(categorical_cols) > 0:
+            group_by = st.selectbox("Group the results by:", ["None (Analyze Everything)"] + categorical_cols)
+        else:
+            group_by = "None (Analyze Everything)"
+
+    # --- KEY METRICS ---
     st.subheader("Key Metrics")
+    total_sum = df[target_metric].sum()
+    total_avg = df[target_metric].mean()
+    total_max = df[target_metric].max()
+    
     col1, col2, col3 = st.columns(3)
+    col1.metric(f"Total {target_metric}", f"{total_sum:,.2f}")
+    col2.metric(f"Average {target_metric}", f"{total_avg:,.2f}")
+    col3.metric(f"Maximum {target_metric}", f"{total_max:,.2f}")
+
+    # --- CHARTS ---
+    st.subheader("Visual Insights")
     
-    total_acres = filtered_df['Acres_Planted'].sum()
-    total_yield = filtered_df['Yield_Kg'].sum()
-    avg_yield_per_acre = total_yield / total_acres if total_acres > 0 else 0
-    
-    col1.metric("Total Acres Planted", f"{total_acres:,.1f} Acres")
-    col2.metric("Total Yield", f"{total_yield:,.0f} Kg")
-    col3.metric("Avg Yield per Acre", f"{avg_yield_per_acre:,.1f} Kg/Acre")
+    if group_by != "None (Analyze Everything)":
+        # Group the data and create a bar chart
+        grouped_data = df.groupby(group_by)[target_metric].sum().sort_values(ascending=False)
+        st.bar_chart(grouped_data)
+        st.write(f"*Showing Total {target_metric} by {group_by}*")
+    else:
+        st.info("Select a 'Group by' option above to see a bar chart.")
 
     st.divider()
 
-    st.subheader("Yield by Farmer")
-    farmer_yield = filtered_df.groupby('Farmer_Name')['Yield_Kg'].sum().sort_values(ascending=False)
-    st.bar_chart(farmer_yield)
-
-    st.divider()
-
-    st.subheader("Your Uploaded Data")
-    st.dataframe(filtered_df, use_container_width=True)
-
-except KeyError:
-    st.error("⚠️ Error: The columns in your file do not match. Please make sure your CSV has the exact columns: 'Farmer_Name', 'Crop', 'Acres_Planted', 'Yield_Kg'.")
+    # --- RAW DATA ---
+    with st.expander("View Your Raw Data"):
+        st.dataframe(df, use_container_width=True)
