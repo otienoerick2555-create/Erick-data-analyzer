@@ -3,7 +3,7 @@ import pandas as pd
 import base64
 
 st.set_page_config(page_title="Universal Data Analyzer", page_icon="📊", layout="wide")
-st.title("📊 Erick's Universal Data Analyzer")
+st.title("📊 Erick  Data Analyzer")
 st.write("Upload any CSV file (Business, Agriculture, Research) to instantly generate insights.")
 
 # --- TEMPLATE DOWNLOAD ---
