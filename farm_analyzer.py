@@ -23,7 +23,7 @@ def get_csv_template():
     href = f'<a href="data:file/csv;base64,{b64}" download="sme_template.csv">📥 Download Blank Business Template</a>'
     return href
             # --- NEW: AUTOMATED INSIGHTS (The "Fake AI") ---
-        st.subheader("🤖 Automated Insights")
+st.subheader("Automated Insights")    
         top_performer = grouped_data.iloc[0]
         bottom_performer = grouped_data.iloc[-1]
         
