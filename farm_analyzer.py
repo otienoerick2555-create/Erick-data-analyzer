@@ -129,6 +129,15 @@ else:
     st.sidebar.write("Want this app customized with your business logo and advanced features?")
     st.sidebar.markdown("**Contact Erick:**")
     st.sidebar.write("📞 0141 325 479")
+            # --- NEW: AUTOMATED INSIGHTS (The "Fake AI") ---
+        st.subheader("🤖 Automated Insights")
+        top_performer = grouped_data.iloc[0]
+        bottom_performer = grouped_data.iloc[-1]
+        
+        st.success(f"📌 **Top Performer:** The highest total for **{target_metric}** is in **{top_performer[group_by]}** (Total: {top_performer[target_metric]:,.2f}). You should focus your resources here!")
+        
+        if len(grouped_data) > 1:
+            st.warning(f"⚠️ **Lowest Performer:** The lowest total is in **{bottom_performer[group_by]}** (Total: {bottom_performer[target_metric]:,.2f}). You might need to investigate why this is lagging.")
     st.sidebar.write("📧 otienoerick2555@gmail.com")
 
     with st.expander("View Raw Data"):
