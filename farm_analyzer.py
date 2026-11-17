@@ -22,6 +22,15 @@ def get_csv_template():
     b64 = base64.b64encode(template_data.encode()).decode()
     href = f'<a href="data:file/csv;base64,{b64}" download="sme_template.csv">📥 Download Blank Business Template</a>'
     return href
+            # --- NEW: AUTOMATED INSIGHTS (The "Fake AI") ---
+        st.subheader("🤖 Automated Insights")
+        top_performer = grouped_data.iloc[0]
+        bottom_performer = grouped_data.iloc[-1]
+        
+        st.success(f"📌 **Top Performer:** The highest total for **{target_metric}** is in **{top_performer[group_by]}** (Total: {top_performer[target_metric]:,.2f}). You should focus your resources here!")
+        
+        if len(grouped_data) > 1:
+            st.warning(f"⚠️ **Lowest Performer:** The lowest total is in **{bottom_performer[group_by]}** (Total: {bottom_performer[target_metric]:,.2f}). You might need to investigate why this is lagging.")
 
 st.markdown(get_csv_template(), unsafe_allow_html=True)
 st.divider()
