@@ -24,7 +24,7 @@ def get_csv_template():
     return href
             # --- NEW: AUTOMATED INSIGHTS (The "Fake AI") ---
 st.subheader("Automated Insights")    
-        top_performer = grouped_data.iloc[0]
+top_performer = grouped_data.iloc[0]
         bottom_performer = grouped_data.iloc[-1]
         
         st.success(f"📌 **Top Performer:** The highest total for **{target_metric}** is in **{top_performer[group_by]}** (Total: {top_performer[target_metric]:,.2f}). You should focus your resources here!")
