@@ -78,7 +78,17 @@ text_cols = df.select_dtypes(include=['object', 'string']).columns.tolist()
 if len(numeric_cols) == 0:
     st.warning("⚠️ No number columns found. Please ensure your file has numbers like Quantity or Revenue.")
 else:
-    st.subheader("📊 Business Health Dashboard")
+    st.subheader("# The app looks at the column names to guess the context
+cols = [c.lower() for c in df.columns]
+
+if 'revenue' in cols or 'sales' in cols or 'price' in cols:
+    st.subheader("💼 Business Performance Dashboard")
+elif 'yield' in cols or 'crop' in cols or 'farm' in cols:
+    st.subheader("🌾 Agricultural Yield Dashboard")
+elif 'age' in cols or 'gender' in cols or 'respondent' in cols:
+    st.subheader("🎓 Research Insights Dashboard")
+else:
+    st.subheader("📊 Data Insights Dashboard")")
     
     # Try to automatically guess the Revenue and Quantity columns
     rev_col = next((c for c in numeric_cols if 'rev' in c or 'amount' in c or 'total' in c), numeric_cols[0])
